@@ -1,0 +1,4 @@
+/mta-env
+/logs
+dags/__pycache__/
+dags/scripts/__pycache__/
