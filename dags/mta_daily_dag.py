@@ -6,7 +6,7 @@ from scripts.fetch_subway_hourly_data import fetch_subway_hourly_data
 from scripts.aggregate_data import aggregate
 from airflow.models import Variable
 
-start_date = datetime(2024, 2, 1, 12, 0)
+start_date = datetime(2022, 1, 25, 12, 0)
 owner = Variable.get("user")
 default_args = {
     'owner': owner,
@@ -23,13 +23,13 @@ with DAG(dag_id='mta_daily_dag',
          schedule_interval='@daily',
          catchup=True,
          ) as dag:
-    wifi_data = PythonOperator(
+    fetch_wifi_location_data = PythonOperator(
         task_id='fetch_wifi_data',
         python_callable=fetch_wifi_data,
         op_kwargs={'wifi': wifi_table_name},
         retries=1,
         retry_delay=timedelta(seconds=15))
-    subway_hourly = PythonOperator(
+    fetch_subway_hourly_data = PythonOperator(
         task_id='fetch_subway_hourly_data',
         python_callable=fetch_subway_hourly_data,
         op_kwargs={'subway': subway_table_name},
@@ -41,4 +41,4 @@ with DAG(dag_id='mta_daily_dag',
         op_kwargs={'wifi': wifi_table_name, 'subway': subway_table_name, 'aggregation': agg_table_name},
         retries=1,
         retry_delay=timedelta(seconds=15))
-    wifi_data >> subway_hourly >> aggregate_results
+    fetch_wifi_location_data >> fetch_subway_hourly_data >> aggregate_results
